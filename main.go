@@ -16,7 +16,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log/syslog"
 	"os"
 	"os/exec"
@@ -34,7 +34,7 @@ import (
 	"github.com/spf13/cast"
 	logrusadapter "logur.dev/adapter/logrus"
 
-	"github.com/banzaicloud/bank-vaults/internal/injector"
+	"github.com/bank-vaults/vault-env/internal/injector"
 )
 
 // The special value for VAULT_ENV which marks that the login token needs to be passed through to the application
@@ -154,7 +154,7 @@ func main() {
 
 		// From https://github.com/sirupsen/logrus/tree/master/hooks/writer#usage
 		// Send all logs to nowhere by default
-		log.SetOutput(ioutil.Discard)
+		log.SetOutput(io.Discard)
 
 		// Send logs with level higher than warning to stderr
 		log.AddHook(&writer.Hook{
@@ -210,7 +210,7 @@ func main() {
 	isLogin := originalVaultTokenEnvVar == vaultLogin
 	if tokenFile := os.Getenv("VAULT_TOKEN_FILE"); tokenFile != "" {
 		// load token from vault-agent .vault-token or injected webhook
-		if b, err := ioutil.ReadFile(tokenFile); err == nil {
+		if b, err := os.ReadFile(tokenFile); err == nil {
 			originalVaultTokenEnvVar = string(b)
 		} else {
 			logger.Fatalf("could not read vault token file: %s", tokenFile)
@@ -352,10 +352,10 @@ func main() {
 			}
 			logger.Errorln("failed to exec process", entrypointCmd, err.Error())
 			os.Exit(exitCode)
-		} else {
-			os.Exit(cmd.ProcessState.ExitCode())
 		}
-	} else {
+
+		os.Exit(cmd.ProcessState.ExitCode())
+	} else { //nolint:revive
 		err = syscall.Exec(binary, entrypointCmd, sanitized.env)
 		if err != nil {
 			logger.Fatalln("failed to exec process", entrypointCmd, err.Error())
