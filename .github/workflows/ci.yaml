@@ -97,7 +97,7 @@ jobs:
 
       - name: Cache license information
         id: cache-licenses
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: .licensei.cache
           key: licensei-v1-${{ github.ref_name }}-${{ hashFiles('go.sum') }}
