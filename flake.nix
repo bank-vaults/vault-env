@@ -42,6 +42,7 @@
             };
 
             enterShell = ''
+              # Vault
               export VAULT_ADDR=http://127.0.0.1:8200
               export VAULT_TOKEN=227e1cce-6bf7-30bb-2d2a-acc854318caf
 
