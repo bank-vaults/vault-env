@@ -37,7 +37,7 @@
               versions.exec = ''
                 go version
                 golangci-lint version
-                echo "goreleaser $(goreleaser --version | sed -n '9p' | cut -d ' ' -f 5)"
+                echo goreleaser $(goreleaser --version | sed -n '9p' | cut -d ' ' -f 5)
               '';
             };
 
