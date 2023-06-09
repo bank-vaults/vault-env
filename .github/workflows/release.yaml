@@ -17,7 +17,7 @@ jobs:
       publish: true
       release: true
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
       security-events: write
