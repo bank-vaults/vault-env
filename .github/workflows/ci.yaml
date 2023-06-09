@@ -144,7 +144,7 @@ jobs:
     with:
       publish: ${{ github.event_name == 'push' }}
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
       security-events: write
