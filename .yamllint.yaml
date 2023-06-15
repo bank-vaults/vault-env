@@ -1,0 +1,6 @@
+ignore-from-file: [.gitignore]
+
+extends: default
+
+rules:
+  line-length: disable
