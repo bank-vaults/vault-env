@@ -45,7 +45,7 @@ test: ## Run tests
 
 .PHONY: lint
 lint: lint-go lint-docker lint-yaml
-lint: ## Run linter
+lint: ## Run linters
 
 .PHONY: lint-go
 lint-go:
