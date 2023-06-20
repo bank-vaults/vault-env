@@ -3,3 +3,6 @@
 /.pre-commit-config.yaml
 /bin/
 /build/
+
+# IDEs
+.idea/
