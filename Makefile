@@ -3,7 +3,7 @@
 export PATH := $(abspath bin/):${PATH}
 
 # Dependency versions
-GOLANGCI_VERSION = 1.53.1
+GOLANGCI_VERSION = 1.53.3
 LICENSEI_VERSION = 0.8.0
 GORELEASER_VERSION = 1.18.2
 
