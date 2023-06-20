@@ -101,7 +101,7 @@ func TestSecretInjector(t *testing.T) {
 			results[key] = value
 		}
 
-		err = injector.InjectSecretsFromVault(references, injectFunc)
+		err := injector.InjectSecretsFromVault(references, injectFunc)
 		require.NoError(t, err)
 
 		// This tests caching of dynamic secrets in calls. We can't predict
