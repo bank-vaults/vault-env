@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        vault_version: ["1.10.11", "1.11.10", "1.12.6", "1.13.2"]
+        vault_version: ["1.10.11", "1.11.11", "1.12.7", "1.13.3"]
 
     services:
       vault:
