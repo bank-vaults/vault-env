@@ -12,7 +12,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.4
-	gocloud.dev v0.33.0
+	gocloud.dev v0.34.0
 	logur.dev/adapter/logrus v0.5.0
 )
 
