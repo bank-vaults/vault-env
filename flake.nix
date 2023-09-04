@@ -2,7 +2,8 @@
   description = "Go libraries for interacting with Hashicorp Vault";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv.url = "github:cachix/devenv";
   };
@@ -20,6 +21,7 @@
           default = {
             languages = {
               go.enable = true;
+              go.package = pkgs.go_1_21;
             };
 
             services = {
@@ -29,7 +31,7 @@
             pre-commit.hooks = {
               nixpkgs-fmt.enable = true;
               yamllint.enable = true;
-              hadolint.enable = true;
+              # hadolint.enable = true;
             };
 
             packages = with pkgs; [
@@ -38,25 +40,18 @@
               golangci-lint
               goreleaser
 
+              kubectl
+
               yamllint
-              hadolint
+              # hadolint
             ] ++ [ self'.packages.licensei ];
 
-            scripts = {
-              versions.exec = ''
-                go version
-                golangci-lint version
-                echo goreleaser $(goreleaser --version | sed -n '9p' | cut -d ' ' -f 5)
-              '';
+            env = {
+              KUBECONFIG = "${config.devenv.shells.default.env.DEVENV_STATE}/kube/config";
+
+              VAULT_ADDR = "http://127.0.0.1:8200";
+              VAULT_TOKEN = "227e1cce-6bf7-30bb-2d2a-acc854318caf";
             };
-
-            enterShell = ''
-              # Vault
-              export VAULT_ADDR=http://127.0.0.1:8200
-              export VAULT_TOKEN=227e1cce-6bf7-30bb-2d2a-acc854318caf
-
-              versions
-            '';
 
             # https://github.com/cachix/devenv/issues/528#issuecomment-1556108767
             containers = pkgs.lib.mkForce { };
