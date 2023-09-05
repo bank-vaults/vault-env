@@ -15,26 +15,25 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"io"
-	"log/syslog"
+	"log/slog"
+	"net"
 	"os"
 	"os/exec"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
 
 	"emperror.dev/errors"
+	"github.com/bank-vaults/internal/injector"
 	"github.com/bank-vaults/vault-sdk/vault"
 	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
-	logrus_syslog "github.com/sirupsen/logrus/hooks/syslog"
-	"github.com/sirupsen/logrus/hooks/writer"
+	slogmulti "github.com/samber/slog-multi"
+	slogsyslog "github.com/samber/slog-syslog"
 	"github.com/spf13/cast"
-	logrusadapter "logur.dev/adapter/logrus"
-
-	"github.com/bank-vaults/vault-env/internal/injector"
 )
 
 // The special value for VAULT_ENV which marks that the login token needs to be passed through to the application
@@ -97,7 +96,7 @@ func (e *sanitizedEnviron) append(name string, value string) {
 type daemonSecretRenewer struct {
 	client *vault.Client
 	sigs   chan os.Signal
-	logger logrus.FieldLogger
+	logger *slog.Logger
 }
 
 func (r daemonSecretRenewer) Renew(path string, secret *vaultapi.Secret) error {
@@ -114,18 +113,21 @@ func (r daemonSecretRenewer) Renew(path string, secret *vaultapi.Secret) error {
 		for {
 			select {
 			case renewOutput := <-watcher.RenewCh():
-				r.logger.Infof("secret %s renewed for %ds", path, renewOutput.Secret.LeaseDuration)
+				r.logger.Info("secret renewed", slog.String("path", path), slog.Duration("lease-duration", time.Duration(renewOutput.Secret.LeaseDuration)*time.Second))
 			case doneError := <-watcher.DoneCh():
 				if !secret.Renewable {
-					time.Sleep(time.Duration(secret.LeaseDuration) * time.Second)
-					r.logger.Infof("secret lease for %s has expired", path)
+					leaseDuration := time.Duration(secret.LeaseDuration) * time.Second
+					time.Sleep(leaseDuration)
+
+					r.logger.Info("secret lease has expired", slog.String("path", path), slog.Duration("lease-duration", leaseDuration))
 				}
-				r.logger.WithField("error", doneError).Infof("secret renewal for %s has stopped, sending SIGTERM to process", path)
+
+				r.logger.Info("secret renewal has stopped, sending SIGTERM to process", slog.String("path", path), slog.Any("done-error", doneError))
 
 				r.sigs <- syscall.SIGTERM
 
 				timeout := <-time.After(10 * time.Second)
-				r.logger.Infoln("killing process due to SIGTERM timeout =", timeout)
+				r.logger.Info("killing process due to SIGTERM timeout", slog.Time("timeout", timeout))
 				r.sigs <- syscall.SIGKILL
 
 				return
@@ -137,55 +139,63 @@ func (r daemonSecretRenewer) Renew(path string, secret *vaultapi.Secret) error {
 }
 
 func main() {
-	enableJSONLog := cast.ToBool(os.Getenv("VAULT_JSON_LOG"))
-	lvl, err := logrus.ParseLevel(os.Getenv("VAULT_LOG_LEVEL"))
-	if err != nil {
-		lvl = logrus.InfoLevel
-	}
-
-	var logger *logrus.Entry
+	var logger *slog.Logger
 	{
-		log := logrus.New()
-		log.SetLevel(lvl)
-		if enableJSONLog {
-			log.SetFormatter(&logrus.JSONFormatter{})
+		var level slog.Level
+
+		err := level.UnmarshalText([]byte(os.Getenv("VAULT_LOG_LEVEL")))
+		if err != nil { // Silently fall back to info level
+			level = slog.LevelInfo
 		}
-		logger = log.WithField("app", "vault-env")
 
-		// From https://github.com/sirupsen/logrus/tree/master/hooks/writer#usage
-		// Send all logs to nowhere by default
-		log.SetOutput(io.Discard)
-
-		// Send logs with level higher than warning to stderr
-		log.AddHook(&writer.Hook{
-			Writer: os.Stderr,
-			LogLevels: []logrus.Level{
-				logrus.PanicLevel,
-				logrus.FatalLevel,
-				logrus.ErrorLevel,
-				logrus.WarnLevel,
-			},
-		})
-		// Send info and debug logs to stdout
-		log.AddHook(&writer.Hook{
-			Writer: os.Stdout,
-			LogLevels: []logrus.Level{
-				logrus.InfoLevel,
-				logrus.DebugLevel,
-			},
-		})
-
-		envLogServer := os.Getenv("VAULT_ENV_LOG_SERVER")
-		if envLogServer != "" {
-			hook, err := logrus_syslog.NewSyslogHook("udp", envLogServer, syslog.LOG_INFO, "")
-			if err == nil {
-				log.Hooks.Add(hook)
+		levelFilter := func(levels ...slog.Level) func(ctx context.Context, r slog.Record) bool {
+			return func(ctx context.Context, r slog.Record) bool {
+				return slices.Contains(levels, r.Level)
 			}
 		}
+
+		router := slogmulti.Router()
+
+		if cast.ToBool(os.Getenv("VAULT_JSON_LOG")) {
+			// Send logs with level higher than warning to stderr
+			router = router.Add(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
+
+			// Send info and debug logs to stdout
+			router = router.Add(
+				slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+				levelFilter(slog.LevelDebug, slog.LevelInfo),
+			)
+		} else {
+			// Send logs with level higher than warning to stderr
+			router = router.Add(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
+
+			// Send info and debug logs to stdout
+			router = router.Add(
+				slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+				levelFilter(slog.LevelDebug, slog.LevelInfo),
+			)
+		}
+
+		if logServerAddr := os.Getenv("VAULT_ENV_LOG_SERVER"); logServerAddr != "" {
+			writer, err := net.Dial("udp", logServerAddr)
+
+			// We silently ignore syslog connection errors for the lack of a better solution
+			if err == nil {
+				router = router.Add(slogsyslog.Option{Level: slog.LevelInfo, Writer: writer}.NewSyslogHandler())
+			}
+		}
+
+		// TODO: add level filter handler
+		logger = slog.New(router.Handler())
+		logger = logger.With(slog.String("app", "vault-env"))
+
+		slog.SetDefault(logger)
 	}
 
 	if len(os.Args) == 1 {
-		logger.Fatalln("no command is given, vault-env can't determine the entrypoint (command), please specify it explicitly or let the webhook query it (see documentation)")
+		logger.Error("no command is given, vault-env can't determine the entrypoint (command), please specify it explicitly or let the webhook query it (see documentation)")
+
+		os.Exit(1)
 	}
 
 	daemonMode := cast.ToBool(os.Getenv("VAULT_ENV_DAEMON"))
@@ -196,13 +206,15 @@ func main() {
 
 	binary, err := exec.LookPath(entrypointCmd[0])
 	if err != nil {
-		logger.Fatalln("binary not found", entrypointCmd[0])
+		logger.Error("binary not found", slog.String("binary", entrypointCmd[0]))
+
+		os.Exit(1)
 	}
 
 	// Used both for reading secrets and transit encryption
 	ignoreMissingSecrets := cast.ToBool(os.Getenv("VAULT_IGNORE_MISSING_SECRETS"))
 
-	clientOptions := []vault.ClientOption{vault.ClientLogger(logrusadapter.NewFromEntry(logger))}
+	clientOptions := []vault.ClientOption{vault.ClientLogger(clientLogger{logger})}
 	// The login procedure takes the token from a file (if using Vault Agent)
 	// or requests one for itself (Kubernetes Auth, or GCP, etc...),
 	// so if we got a VAULT_TOKEN for the special value with "vault:login"
@@ -213,7 +225,9 @@ func main() {
 		if b, err := os.ReadFile(tokenFile); err == nil {
 			originalVaultTokenEnvVar = string(b)
 		} else {
-			logger.Fatalf("could not read vault token file: %s", tokenFile)
+			logger.Error("could not read vault token file", slog.String("file", tokenFile))
+
+			os.Exit(1)
 		}
 		clientOptions = append(clientOptions, vault.ClientToken(originalVaultTokenEnvVar))
 	} else {
@@ -230,7 +244,9 @@ func main() {
 
 	client, err := vault.NewClientWithOptions(clientOptions...)
 	if err != nil {
-		logger.Fatal("failed to create vault client", err.Error())
+		logger.Error(fmt.Errorf("failed to create vault client: %w", err).Error())
+
+		os.Exit(1)
 	}
 
 	passthroughEnvVars := strings.Split(os.Getenv("VAULT_ENV_PASSTHROUGH"), ",")
@@ -280,14 +296,18 @@ func main() {
 
 	err = secretInjector.InjectSecretsFromVault(environ, inject)
 	if err != nil {
-		logger.Fatalln("failed to inject secrets from vault:", err)
+		logger.Error(fmt.Errorf("failed to inject secrets from vault: %w", err).Error())
+
+		os.Exit(1)
 	}
 
 	if paths := os.Getenv("VAULT_ENV_FROM_PATH"); paths != "" {
 		err = secretInjector.InjectSecretsFromVaultPath(paths, inject)
 	}
 	if err != nil {
-		logger.Fatalln("failed to inject secrets from vault path:", err)
+		logger.Error(fmt.Errorf("failed to inject secrets from vault path: %w", err).Error())
+
+		os.Exit(1)
 	}
 
 	if cast.ToBool(os.Getenv("VAULT_REVOKE_TOKEN")) {
@@ -302,14 +322,14 @@ func main() {
 	}
 
 	if delayExec > 0 {
-		logger.Infof("sleeping for %s...", delayExec)
+		logger.Info(fmt.Sprintf("sleeping for %s...", delayExec))
 		time.Sleep(delayExec)
 	}
 
-	logger.Infoln("spawning process:", entrypointCmd)
+	logger.Info("spawning process", slog.String("entrypoint", fmt.Sprint(entrypointCmd)))
 
 	if daemonMode {
-		logger.Infoln("in daemon mode...")
+		logger.Info("in daemon mode...")
 		cmd := exec.Command(binary, entrypointCmd[1:]...)
 		cmd.Env = append(os.Environ(), sanitized.env...)
 		cmd.Stdin = os.Stdin
@@ -320,7 +340,9 @@ func main() {
 
 		err = cmd.Start()
 		if err != nil {
-			logger.Fatalln("failed to start process", entrypointCmd, err.Error())
+			logger.Error(fmt.Errorf("failed to start process: %w", err).Error(), slog.String("entrypoint", fmt.Sprint(entrypointCmd)))
+
+			os.Exit(1)
 		}
 
 		go func() {
@@ -332,9 +354,9 @@ func main() {
 
 				err := cmd.Process.Signal(sig)
 				if err != nil {
-					logger.Warnf("failed to signal process with %s: %v", sig, err)
+					logger.Warn(fmt.Errorf("failed to signal process: %w", err).Error(), slog.String("signal", sig.String()))
 				} else {
-					logger.Infof("received signal: %s", sig)
+					logger.Info("received signal", slog.String("signal", sig.String()))
 				}
 			}
 		}()
@@ -350,7 +372,9 @@ func main() {
 			if errors.As(err, &exitError) {
 				exitCode = exitError.ExitCode()
 			}
-			logger.Errorln("failed to exec process", entrypointCmd, err.Error())
+
+			logger.Error(fmt.Errorf("failed to exec process: %w", err).Error(), slog.String("entrypoint", fmt.Sprint(entrypointCmd)))
+
 			os.Exit(exitCode)
 		}
 
@@ -358,7 +382,9 @@ func main() {
 	} else { //nolint:revive
 		err = syscall.Exec(binary, entrypointCmd, sanitized.env)
 		if err != nil {
-			logger.Fatalln("failed to exec process", entrypointCmd, err.Error())
+			logger.Error(fmt.Errorf("failed to exec process: %w", err).Error(), slog.String("entrypoint", fmt.Sprint(entrypointCmd)))
+
+			os.Exit(1)
 		}
 	}
 }
