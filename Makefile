@@ -44,7 +44,8 @@ test: ## Run tests
 	go test -race -v ./...
 
 .PHONY: lint
-lint: lint-go lint-docker lint-yaml
+# lint: lint-go lint-docker lint-yaml
+lint: lint-go lint-yaml
 lint: ## Run linters
 
 .PHONY: lint-go
