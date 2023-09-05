@@ -14,7 +14,13 @@
 
 package main
 
-import "log/slog"
+import (
+	"log/slog"
+
+	"github.com/bank-vaults/vault-sdk/vault"
+)
+
+var _ vault.Logger = &clientLogger{}
 
 type clientLogger struct {
 	logger *slog.Logger
