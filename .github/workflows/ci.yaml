@@ -215,14 +215,3 @@ jobs:
 
       - name: Dependency Review
         uses: actions/dependency-review-action@6c5ccdad469c9f8a2996bfecaec55a631a347034 # v3.1.0
-
-  verify:
-    name: Verify
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Block Merge Commits
-        uses: Morishiri/block-merge-commits-action@v1.0.1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
