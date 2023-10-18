@@ -158,7 +158,10 @@ func main() {
 
 		if cast.ToBool(os.Getenv("VAULT_JSON_LOG")) {
 			// Send logs with level higher than warning to stderr
-			router = router.Add(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
+			router = router.Add(
+				slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}),
+				levelFilter(slog.LevelWarn, slog.LevelError),
+			)
 
 			// Send info and debug logs to stdout
 			router = router.Add(
@@ -167,7 +170,10 @@ func main() {
 			)
 		} else {
 			// Send logs with level higher than warning to stderr
-			router = router.Add(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
+			router = router.Add(
+				slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}),
+				levelFilter(slog.LevelWarn, slog.LevelError),
+			)
 
 			// Send info and debug logs to stdout
 			router = router.Add(
