@@ -88,7 +88,7 @@ GORELEASER_VERSION = 1.18.2
 # Dependency binaries
 GOLANGCI_LINT_BIN := golangci-lint
 LICENSEI_BIN := licensei
-GORELEASER_BIN := kind
+GORELEASER_BIN := goreleaser
 
 # TODO: add support for hadolint and yamllint dependencies
 HADOLINT_BIN := hadolint
