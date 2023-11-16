@@ -2,6 +2,7 @@
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/bank-vaults/vault-env/ci.yaml?branch=main&style=flat-square)](https://github.com/bank-vaults/vault-env/actions/workflows/ci.yaml?query=workflow%3ACI)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/bank-vaults/vault-env/badge?style=flat-square)](https://api.securityscorecards.dev/projects/github.com/bank-vaults/vault-env)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8062/badge)](https://www.bestpractices.dev/projects/8062)
 
 **Minimalistic init system for containers with [Hashicorp Vault](https://www.vaultproject.io/) secrets support .**
 
@@ -56,10 +57,6 @@ make artifacts
 Once you are done either stop or tear down dependencies:
 
 ```shell
-make stop
-
-# OR
-
 make down
 ```
 
