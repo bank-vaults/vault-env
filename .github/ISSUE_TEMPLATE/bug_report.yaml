@@ -1,6 +1,6 @@
 name: 🐛 Bug report
 description: Report a bug to help us improve vault-env
-labels: [bug]
+labels: [kind/bug]
 body:
   - type: markdown
     attributes:
@@ -19,17 +19,12 @@ body:
           required: true
         - label: I am not looking for support or already pursued the available [support channels](https://github.com/bank-vaults/vault-env/issues/new/choose) without success.
           required: true
+        - label: I agree to follow the [Code of Conduct](https://bank-vaults.dev/docs/code-of-conduct/).
+          required: true
   - type: input
     attributes:
       label: vault-env Version
       description: What version of vault-env are you using?
-      placeholder: 1.20.0
-    validations:
-      required: true
-  - type: input
-    attributes:
-      label: Operator Version
-      description: What version of the Operator are you using?
       placeholder: 1.20.0
     validations:
       required: true
@@ -40,12 +35,8 @@ body:
       options:
         - Official Helm chart
         - Custom Helm chart
+        - Vault Secrets Webhook
         - Other (specify below)
-  - type: input
-    attributes:
-      label: Bank-Vaults Version
-      description: What version of the Bank-Vaults CLI are you using?
-      placeholder: leave empty if you haven't specified a custom version
   - type: input
     attributes:
       label: Kubernetes Version
@@ -81,17 +72,6 @@ body:
         2. With this config...
         3. Run '...'
         4. See error...
-  - type: textarea
-    attributes:
-      label: Configuration
-      description: Contents of Vault CustomResource.
-      render: yaml
-      placeholder: |
-        apiVersion: "vault.banzaicloud.com/v1alpha1"
-        kind: "Vault"
-        metadata:
-          name: "vault"
-        # ...
   - type: textarea
     attributes:
       label: Logs
