@@ -9,7 +9,7 @@ body:
 
         Please describe what you would like to change/add and why in detail by filling out the template below.
 
-        If you are not sure if your request fits into Dex, you can contact us via the available [support channels](https://github.com/bank-vaults/vault-env/issues/new/choose).
+        If you are not sure if your request fits into Dex, you can contact us via the available [support channels](https://bank-vaults.dev/docs/support/).
   - type: checkboxes
     attributes:
       label: Preflight Checklist
@@ -38,4 +38,4 @@ body:
   - type: textarea
     attributes:
       label: Additional Information
-      description: Add any other context about the problem here.
+      description: Add any other relevant context here.
