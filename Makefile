@@ -82,7 +82,7 @@ deps: ## Install dependencies
 
 # Dependency versions
 GOLANGCI_VERSION = 1.53.3
-COSIGN_VERSION = v2.2.2
+COSIGN_VERSION = 2.2.2
 LICENSEI_VERSION = 0.8.0
 GORELEASER_VERSION = 1.18.2
 
@@ -116,9 +116,9 @@ bin/cosign:
 	@mkdir -p bin
 	@OS=$$(uname -s); \
     	if [ "$$OS" = "Linux" ]; then \
-    		curl -sSfL https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64 -o bin/cosign; \
+    		curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64 -o bin/cosign; \
     	elif [ "$$OS" = "Darwin" ]; then \
-    		curl -sSfL https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-darwin-arm64 -o bin/cosign; \
+    		curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-darwin-arm64 -o bin/cosign; \
     	else \
     		echo "Unsupported OS"; \
     		exit 1; \
@@ -127,8 +127,4 @@ bin/cosign:
 
 
 bin/goreleaser:
-	@mkdir -p bin
-	@mkdir -p tmpgoreleaser
-	curl -sfL https://goreleaser.com/static/run | VERSION=v${GORELEASER_VERSION} TMPDIR=${PWD}/tmpgoreleaser bash -s -- --version
-	mv tmpgoreleaser/goreleaser bin/
-	@rm -rf tmpgoreleaser
+	scripts/get-goreleaser.sh
