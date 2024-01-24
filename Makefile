@@ -77,16 +77,18 @@ fmt: ## Format code
 
 ##@ Dependencies
 
-deps: bin/golangci-lint bin/licensei bin/goreleaser
+deps: bin/golangci-lint bin/cosign bin/licensei bin/goreleaser
 deps: ## Install dependencies
 
 # Dependency versions
 GOLANGCI_VERSION = 1.53.3
+COSIGN_VERSION = 2.2.2
 LICENSEI_VERSION = 0.8.0
 GORELEASER_VERSION = 1.18.2
 
 # Dependency binaries
 GOLANGCI_LINT_BIN := golangci-lint
+COSIGN_BIN := cosign
 LICENSEI_BIN := licensei
 GORELEASER_BIN := goreleaser
 
@@ -97,6 +99,7 @@ YAMLLINT_BIN := yamllint
 # If we have "bin" dir, use those binaries instead
 ifneq ($(wildcard ./bin/.),)
 	GOLANGCI_LINT_BIN := bin/$(GOLANGCI_LINT_BIN)
+	COSIGN_BIN := bin/$(COSIGN_BIN)
 	LICENSEI_BIN := bin/$(LICENSEI_BIN)
 	GORELEASER_BIN := bin/$(GORELEASER_BIN)
 endif
@@ -109,9 +112,19 @@ bin/licensei:
 	@mkdir -p bin
 	curl -sfL https://raw.githubusercontent.com/goph/licensei/master/install.sh | bash -s -- v${LICENSEI_VERSION}
 
-bin/goreleaser:
+bin/cosign:
 	@mkdir -p bin
-	@mkdir -p tmpgoreleaser
-	curl -sfL https://goreleaser.com/static/run | VERSION=v${GORELEASER_VERSION} TMPDIR=${PWD}/tmpgoreleaser bash -s -- --version
-	mv tmpgoreleaser/goreleaser bin/
-	@rm -rf tmpgoreleaser
+	@OS=$$(uname -s); \
+    	if [ "$$OS" = "Linux" ]; then \
+    		curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64 -o bin/cosign; \
+    	elif [ "$$OS" = "Darwin" ]; then \
+    		curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-darwin-arm64 -o bin/cosign; \
+    	else \
+    		echo "Unsupported OS"; \
+    		exit 1; \
+    	fi
+	@chmod +x bin/cosign
+
+
+bin/goreleaser:
+	scripts/get-goreleaser.sh
