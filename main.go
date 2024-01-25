@@ -361,6 +361,8 @@ func main() {
 				err := cmd.Process.Signal(sig)
 				if err != nil {
 					logger.Warn(fmt.Errorf("failed to signal process: %w", err).Error(), slog.String("signal", sig.String()))
+				} else if sig == syscall.SIGURG {
+					logger.Debug("received signal", slog.String("signal", sig.String()))
 				} else {
 					logger.Info("received signal", slog.String("signal", sig.String()))
 				}
