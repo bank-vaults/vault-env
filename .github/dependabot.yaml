@@ -3,15 +3,30 @@ version: 2
 updates:
   - package-ecosystem: "gomod"
     directory: "/"
+    labels:
+      - "area/dependencies"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
+      time: "16:00"
+    open-pull-requests-limit: 10
 
   - package-ecosystem: "docker"
     directory: "/"
+    labels:
+      - "area/dependencies"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
+      time: "16:00"
+    open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    labels:
+      - "area/dependencies"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
+      time: "16:00"
+    open-pull-requests-limit: 10
