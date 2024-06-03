@@ -1,6 +1,7 @@
-ignore-from-file: [.gitignore]
+ignore-from-file: [.gitignore, .yamlignore]
 
 extends: default
 
 rules:
   line-length: disable
+  document-start: disable
