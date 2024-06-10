@@ -149,7 +149,7 @@ func main() {
 		}
 
 		levelFilter := func(levels ...slog.Level) func(ctx context.Context, r slog.Record) bool {
-			return func(ctx context.Context, r slog.Record) bool {
+			return func(_ context.Context, r slog.Record) bool {
 				return slices.Contains(levels, r.Level)
 			}
 		}
