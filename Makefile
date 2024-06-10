@@ -84,7 +84,7 @@ deps: ## Install dependencies
 GOLANGCI_VERSION = 1.53.3
 COSIGN_VERSION = 2.2.2
 LICENSEI_VERSION = 0.8.0
-GORELEASER_VERSION = 1.18.2
+GORELEASER_VERSION = 2.0.0
 
 # Dependency binaries
 GOLANGCI_LINT_BIN := golangci-lint
