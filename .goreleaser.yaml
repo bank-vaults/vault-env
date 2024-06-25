@@ -1,12 +1,17 @@
+version: 2
+
+project_name: vault-env
+
 dist: build/dist
 
+before:
+  hooks:
+    - go mod tidy
 builds:
-  - main: .
-    env:
+  - env:
       - CGO_ENABLED=0
-    flags:
-      - -trimpath
     ldflags: "-s -w -X main.version={{ .Version }}"
+    main: .
     goos:
       - linux
       - darwin
@@ -15,13 +20,18 @@ builds:
       - arm64
 
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
-    format_overrides:
-      - goos: windows
-        format: zip
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
 
 checksum:
   name_template: "checksums.txt"
 
 changelog:
-  skip: false
+  disable: true
