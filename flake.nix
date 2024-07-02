@@ -2,8 +2,7 @@
   description = "Go libraries for interacting with Hashicorp Vault";
 
   inputs = {
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs.url = "github:NixOS/nixpkgs/master";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv.url = "github:cachix/devenv";
   };
@@ -40,8 +39,13 @@
             packages = with pkgs; [
               gnumake
 
-              # golangci-lint
               goreleaser
+
+              # golangci-lint
+              # TODO: remove once https://github.com/NixOS/nixpkgs/pull/254878 hits unstable
+              (golangci-lint.override (prev: {
+                buildGoModule = pkgs.buildGo121Module;
+              }))
 
               kubectl
 
@@ -49,7 +53,6 @@
               hadolint
             ] ++ [
               self'.packages.licensei
-              self'.packages.golangci-lint
             ];
 
             env = {
@@ -115,47 +118,6 @@
               "-X github.com/hashicorp/vault/sdk/version.Version=${version}"
               "-X github.com/hashicorp/vault/sdk/version.VersionPrerelease="
             ];
-          };
-
-          golangci-lint = pkgs.buildGo121Module rec {
-            pname = "golangci-lint";
-            version = "1.54.2";
-
-            src = pkgs.fetchFromGitHub {
-              owner = "golangci";
-              repo = "golangci-lint";
-              rev = "v${version}";
-              hash = "sha256-7nbgiUrp7S7sXt7uFXX8NHYbIRLZZQcg+18IdwAZBfE=";
-            };
-
-            vendorHash = "sha256-IyH5lG2a4zjsg/MUonCUiAgMl4xx8zSflRyzNgk8MR0=";
-
-            subPackages = [ "cmd/golangci-lint" ];
-
-            nativeBuildInputs = [ pkgs.installShellFiles ];
-
-            ldflags = [
-              "-s"
-              "-w"
-              "-X main.version=${version}"
-              "-X main.commit=v${version}"
-              "-X main.date=19700101-00:00:00"
-            ];
-
-            postInstall = ''
-              for shell in bash zsh fish; do
-                HOME=$TMPDIR $out/bin/golangci-lint completion $shell > golangci-lint.$shell
-                installShellCompletion golangci-lint.$shell
-              done
-            '';
-
-            meta = with pkgs.lib; {
-              description = "Fast linters Runner for Go";
-              homepage = "https://golangci-lint.run/";
-              changelog = "https://github.com/golangci/golangci-lint/blob/v${version}/CHANGELOG.md";
-              license = licenses.gpl3Plus;
-              maintainers = with maintainers; [ anpryl manveru mic92 ];
-            };
           };
         };
       };
