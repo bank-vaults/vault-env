@@ -7,7 +7,7 @@ require (
 	github.com/bank-vaults/internal v0.3.1
 	github.com/bank-vaults/vault-sdk v0.9.4
 	github.com/hashicorp/vault/api v1.14.0
-	github.com/samber/slog-multi v1.1.0
+	github.com/samber/slog-multi v1.2.0
 	github.com/samber/slog-syslog v1.0.0
 	github.com/spf13/cast v1.6.0
 )
