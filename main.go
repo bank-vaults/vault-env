@@ -36,6 +36,8 @@ import (
 	"github.com/spf13/cast"
 )
 
+var Version = "dev"
+
 // The special value for VAULT_ENV which marks that the login token needs to be passed through to the application
 // which was acquired during the new Vault client creation
 const vaultLogin = "vault:login"

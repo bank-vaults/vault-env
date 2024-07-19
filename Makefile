@@ -35,7 +35,7 @@ container-image: ## Build container image
 
 .PHONY: binary-snapshot
 binary-snapshot: ## Build binary snapshot
-	$(GORELEASER_BIN) release --rm-dist --skip-publish --snapshot
+	VERSION=v${GORELEASER_VERSION} ${GORELEASER_BIN} release --clean --skip=publish --snapshot
 
 .PHONY: artifacts
 artifacts: container-image binary-snapshot
@@ -84,7 +84,7 @@ deps: ## Install dependencies
 GOLANGCI_VERSION = 1.53.3
 COSIGN_VERSION = 2.2.2
 LICENSEI_VERSION = 0.8.0
-GORELEASER_VERSION = 1.18.2
+GORELEASER_VERSION = 2.0.0
 
 # Dependency binaries
 GOLANGCI_LINT_BIN := golangci-lint
@@ -127,4 +127,6 @@ bin/cosign:
 
 
 bin/goreleaser:
-	scripts/get-goreleaser.sh
+	@mkdir -p bin
+	curl -sfL https://goreleaser.com/static/run -o bin/goreleaser
+	@chmod +x bin/goreleaser
