@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/vault/api v1.14.0
 	github.com/samber/slog-multi v1.2.0
 	github.com/samber/slog-syslog v1.0.0
-	github.com/spf13/cast v1.6.0
+	github.com/spf13/cast v1.7.0
 )
 
 require (
