@@ -89,8 +89,8 @@ github.com/bank-vaults/secrets-webhook v0.0.0-20240604102500-a4319439b520 h1:hzS
 github.com/bank-vaults/secrets-webhook v0.0.0-20240604102500-a4319439b520/go.mod h1:KMwm+fj0DbabYy0slRV+aZLJ92IuYuA/+q5lApYPYQo=
 github.com/bank-vaults/vault-sdk v0.9.4 h1:vxGcnylxhVaZYWXx5QyCEyZmzsSNiXbNuq47P8vXVdI=
 github.com/bank-vaults/vault-sdk v0.9.4/go.mod h1:5WLbsfGtfMas4DDuvT5pWmRs4nDjGV0VjEotRHlvc6o=
-github.com/cenkalti/backoff/v3 v3.2.2 h1:cfUAAO3yvKMYKPrvhDuHSwQnhZNk/RMHKdZqKTxfm6M=
-github.com/cenkalti/backoff/v3 v3.2.2/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=
+github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
+github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
@@ -199,8 +199,8 @@ github.com/hashicorp/go-uuid v1.0.3 h1:2gKiV6YVmrJ1i2CKKa9obLvRieoRGviZFL26PcT/C
 github.com/hashicorp/go-uuid v1.0.3/go.mod h1:6SBZvOh/SIDV7/2o3Jml5SYk/TvGqwFJ/bN7x4byOro=
 github.com/hashicorp/hcl v1.0.1-vault-5 h1:kI3hhbbyzr4dldA8UdTb7ZlVVlI2DACdCfz31RPDgJM=
 github.com/hashicorp/hcl v1.0.1-vault-5/go.mod h1:XYhtn6ijBSAj6n4YqAaf7RBPS4I06AItNorpy+MoQNM=
-github.com/hashicorp/vault/api v1.14.0 h1:Ah3CFLixD5jmjusOgm8grfN9M0d+Y8fVR2SW0K6pJLU=
-github.com/hashicorp/vault/api v1.14.0/go.mod h1:pV9YLxBGSz+cItFDd8Ii4G17waWOQ32zVjMWHe/cOqk=
+github.com/hashicorp/vault/api v1.15.0 h1:O24FYQCWwhwKnF7CuSqP30S51rTV7vz1iACXE/pj5DA=
+github.com/hashicorp/vault/api v1.15.0/go.mod h1:+5YTO09JGn0u+b6ySD/LLVf8WkJCPLAL2Vkmrn2+CM8=
 github.com/hashicorp/vault/api/auth/aws v0.7.0 h1:ArviNMpI3wbqGw2lEz04+NiqWl0p8QPX+HRX+S9uQCQ=
 github.com/hashicorp/vault/api/auth/aws v0.7.0/go.mod h1:o89djEokWKGIjf5FkcaA//4RBwvrDDIXqVINMdBNAzw=
 github.com/hashicorp/vault/api/auth/azure v0.6.0 h1:uhUoBxMPHcz85QFo32XV0JUwGsDAnsVEW2au/SUi4Oo=
