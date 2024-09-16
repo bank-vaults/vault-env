@@ -6,7 +6,7 @@ require (
 	emperror.dev/errors v0.8.1
 	github.com/bank-vaults/internal v0.3.1
 	github.com/bank-vaults/vault-sdk v0.9.4
-	github.com/hashicorp/vault/api v1.14.0
+	github.com/hashicorp/vault/api v1.15.0
 	github.com/samber/slog-multi v1.2.1
 	github.com/samber/slog-syslog v1.0.0
 	github.com/spf13/cast v1.7.0
@@ -52,7 +52,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.11 // indirect
 	github.com/aws/smithy-go v1.20.2 // indirect
 	github.com/bank-vaults/secrets-webhook v0.0.0-20240604102500-a4319439b520 // indirect
-	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
