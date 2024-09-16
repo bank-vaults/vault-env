@@ -28,7 +28,7 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	injector "github.com/bank-vaults/internal/pkg/injector/vault"
+	injector "github.com/bank-vaults/vault-sdk/injector/vault"
 	"github.com/bank-vaults/vault-sdk/vault"
 	vaultapi "github.com/hashicorp/vault/api"
 	slogmulti "github.com/samber/slog-multi"

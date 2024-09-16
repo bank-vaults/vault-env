@@ -20,7 +20,7 @@
           default = {
             languages = {
               go.enable = true;
-              go.package = pkgs.go_1_21;
+              go.package = pkgs.go_1_23;
             };
 
             services = {
@@ -41,14 +41,7 @@
 
               goreleaser
 
-              # golangci-lint
-              # TODO: remove once https://github.com/NixOS/nixpkgs/pull/254878 hits unstable
-              (golangci-lint.override (prev: {
-                buildGoModule = pkgs.buildGo121Module;
-              }))
-
-              kubectl
-
+              golangci-lint
               yamllint
               hadolint
             ] ++ [
