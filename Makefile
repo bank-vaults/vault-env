@@ -29,6 +29,10 @@ build: ## Build binary
 	@mkdir -p build
 	go build -race -o build/vault-env .
 
+.PHONY: artifacts
+artifacts: container-image binary-snapshot
+artifacts: ## Build artifacts
+
 .PHONY: container-image
 container-image: ## Build container image
 	docker build .
@@ -37,14 +41,10 @@ container-image: ## Build container image
 binary-snapshot: ## Build binary snapshot
 	VERSION=v${GORELEASER_VERSION} ${GORELEASER_BIN} release --clean --skip=publish --snapshot
 
-.PHONY: artifacts
-artifacts: container-image binary-snapshot
-artifacts: ## Build artifacts
-
 ##@ Checks
 
 .PHONY: check
-check: test lint ## Run lint checks and tests
+check: test lint ## Run tests lint checks
 
 .PHONY: test
 test: ## Run tests
@@ -56,7 +56,7 @@ lint: ## Run linters
 
 .PHONY: lint-go
 lint-go:
-	$(GOLANGCI_LINT_BIN) run $(if ${CI},--out-format github-actions,)
+	$(GOLANGCI_LINT_BIN) run $(if ${CI},--out-format colored-line-number,)
 
 .PHONY: lint-docker
 lint-docker:
@@ -66,14 +66,14 @@ lint-docker:
 lint-yaml:
 	$(YAMLLINT_BIN) $(if ${CI},-f github,) --no-warnings .
 
+.PHONY: fmt
+fmt: ## Format code
+	$(GOLANGCI_LINT_BIN) run --fix
+
 .PHONY: license-check
 license-check: ## Run license check
 	$(LICENSEI_BIN) check
 	$(LICENSEI_BIN) header
-
-.PHONY: fmt
-fmt: ## Format code
-	$(GOLANGCI_LINT_BIN) run --fix
 
 ##@ Dependencies
 
@@ -81,10 +81,10 @@ deps: bin/golangci-lint bin/cosign bin/licensei bin/goreleaser
 deps: ## Install dependencies
 
 # Dependency versions
-GOLANGCI_VERSION = 1.53.3
-COSIGN_VERSION = 2.2.2
-LICENSEI_VERSION = 0.8.0
-GORELEASER_VERSION = 2.0.0
+GOLANGCI_LINT_VERSION = 1.61.0
+COSIGN_VERSION = 2.4.0
+LICENSEI_VERSION = 0.9.0
+GORELEASER_VERSION = 2.2.0
 
 # Dependency binaries
 GOLANGCI_LINT_BIN := golangci-lint
@@ -106,7 +106,7 @@ endif
 
 bin/golangci-lint:
 	@mkdir -p bin
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- v${GOLANGCI_VERSION}
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- v${GOLANGCI_LINT_VERSION}
 
 bin/licensei:
 	@mkdir -p bin
@@ -115,14 +115,18 @@ bin/licensei:
 bin/cosign:
 	@mkdir -p bin
 	@OS=$$(uname -s); \
-    	if [ "$$OS" = "Linux" ]; then \
-    		curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64 -o bin/cosign; \
-    	elif [ "$$OS" = "Darwin" ]; then \
-    		curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-darwin-arm64 -o bin/cosign; \
-    	else \
-    		echo "Unsupported OS"; \
-    		exit 1; \
-    	fi
+	case $$OS in \
+		"Linux") \
+			curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64 -o bin/cosign; \
+			;; \
+		"Darwin") \
+			curl -sSfL https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-darwin-arm64 -o bin/cosign; \
+			;; \
+		*) \
+			echo "Unsupported OS: $$OS"; \
+			exit 1; \
+			;; \
+	esac
 	@chmod +x bin/cosign
 
 
