@@ -389,7 +389,7 @@ func main() {
 		}
 
 		os.Exit(cmd.ProcessState.ExitCode())
-	} else { //nolint:revive
+	} else {
 		err = syscall.Exec(binary, entrypointCmd, sanitized.env)
 		if err != nil {
 			logger.Error(fmt.Errorf("failed to exec process: %w", err).Error(), slog.String("entrypoint", fmt.Sprint(entrypointCmd)))
