@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	emperror.dev/errors v0.8.1
 	github.com/bank-vaults/vault-sdk v0.10.2
-	github.com/hashicorp/vault/api v1.16.0
+	github.com/hashicorp/vault/api v1.20.0
 	github.com/samber/slog-multi v1.4.0
 	github.com/samber/slog-syslog v1.0.0
 	github.com/spf13/cast v1.8.0
