@@ -373,6 +373,7 @@ func main() {
 
 		err = cmd.Wait()
 
+		signal.Stop(sigs)
 		close(sigs)
 
 		if err != nil {
