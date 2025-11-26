@@ -191,36 +191,19 @@ jobs:
       contents: write
 
     steps:
-      - name: Increase tmpfs size
-        run: |
-          echo "=== Original tmpfs size ==="
-          df -h /run/user/1001
-          sudo mount -o remount,size=8G /run/user/1001
-          echo "=== New tmpfs size ==="
-          df -h /run/user/1001
-
       - name: Checkout repository
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-
-      - name: Set up Nix
-        uses: cachix/install-nix-action@3715ab1a11cac9e991980d7b4a28d80c7ebdd8f9 # v27
-        with:
-          extra_nix_config: |
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prepare Nix shell
-        run: nix develop --impure .#ci
 
       - name: Determine build command
         uses: haya14busa/action-cond@94f77f7a80cd666cb3155084e428254fea4281fd # v1.2.1
         id: build-command
         with:
           cond: ${{ inputs.release }}
-          if_true: goreleaser release
-          if_false: goreleaser release --skip=publish --snapshot
+          if_true: binary-release
+          if_false: binary-snapshot
 
       - name: Build
-        run: nix develop --impure .#ci -c ${{ steps.build-command.outputs.value }}
+        run: make ${{ steps.build-command.outputs.value }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
