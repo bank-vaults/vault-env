@@ -140,5 +140,11 @@ bin/cosign:
 
 bin/goreleaser:
 	@mkdir -p bin
-	curl -sfL https://goreleaser.com/static/run -o bin/goreleaser
-	@chmod +x bin/goreleaser
+	@OS=$$(uname -s); \
+	ARCH=$$(uname -m); \
+	test "$$ARCH" = "aarch64" && ARCH="arm64"; \
+	TAR_FILE="goreleaser_$${OS}_$${ARCH}.tar.gz"; \
+	curl -sSfL "https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/$${TAR_FILE}" -o "/tmp/$${TAR_FILE}"; \
+	tar -xzf "/tmp/$${TAR_FILE}" -C bin goreleaser; \
+	rm "/tmp/$${TAR_FILE}"; \
+	chmod +x bin/goreleaser
