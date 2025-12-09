@@ -89,10 +89,10 @@ deps: bin/golangci-lint bin/cosign bin/licensei bin/goreleaser
 deps: ## Install dependencies
 
 # Dependency versions
-GOLANGCI_LINT_VERSION = 2.0.2
+GOLANGCI_LINT_VERSION = 2.7.2
 LICENSEI_VERSION = 0.9.0
-COSIGN_VERSION = 2.4.1
-GORELEASER_VERSION = 2.4.8
+COSIGN_VERSION = 3.0.2
+GORELEASER_VERSION = 2.13.1
 
 # Dependency binaries
 GOLANGCI_LINT_BIN := golangci-lint
