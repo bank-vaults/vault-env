@@ -6,7 +6,7 @@ require (
 	emperror.dev/errors v0.8.1
 	github.com/bank-vaults/vault-sdk v0.11.2
 	github.com/hashicorp/vault/api v1.22.0
-	github.com/samber/slog-multi v1.7.0
+	github.com/samber/slog-multi v1.7.1
 	github.com/samber/slog-syslog v1.0.0
 	github.com/spf13/cast v1.10.0
 )
@@ -105,7 +105,7 @@ require (
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/samber/lo v1.52.0 // indirect
-	github.com/samber/slog-common v0.19.0 // indirect
+	github.com/samber/slog-common v0.20.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
